@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "./generated"
@@ -14,20 +8,33 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String?
-  email    String  @unique
-  password String
-  posts    Post[]
+  id             String     @id @default(cuid())
+  name           String?
+  email          String     @unique
+  password       String
+  sessionVersion Int        @default(0)
+  webhook        String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  accounts       Account[]
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id])
+model Account {
+  id          String   @id @default(cuid())
+  name        String
+  accountId   String   @unique // Game account ID — cannot be duplicated
+  cookieToken String   // Encrypted cookie token
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LoginAttempt {
+  identifier String
+  windowStart DateTime
+  count      Int
+  updatedAt  DateTime @updatedAt
+
+  @@id([identifier, windowStart])
 }
