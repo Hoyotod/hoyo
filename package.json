@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "pnpm prisma migrate deploy && next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "pnpm prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
