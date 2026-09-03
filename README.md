@@ -1,168 +1,123 @@
-# Next.js & Prisma Postgres Auth Starter
+# HoyoAccount
 
-This repository provides a boilerplate to quickly set up a Next.js demo application with authentication using [NextAuth.js v4](https://next-auth.js.org/), [Prisma Postgres](https://www.prisma.io/postgres) and [Prisma ORM](https://www.prisma.io/orm), and deploy it to Vercel. It includes an easy setup process and example routes that demonstrate basic CRUD operations against the database.
+A **Hoyoverse account manager** — manage your HoYo game accounts (account IDs + cookie tokens) in one place with a stats dashboard. Built with a bold **neobrutalism** UI and an optional manual **dark mode**.
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Server Components, Server Actions)
+- [React 19](https://react.dev)
+- [NextAuth.js v4](https://next-auth.js.org) — credentials authentication
+- [Prisma 7](https://www.prisma.io/orm) + Postgres (`@prisma/adapter-pg`)
+- [zod](https://zod.dev) — form validation
+- [lucide-react](https://lucide.dev) — icons
+- Tailwind CSS 4
+- [pnpm](https://pnpm.io) — package manager
 
 ## Features
 
-- Next.js 15 app with App Router, Server Actions & API Routes
-- Data modeling, database migrations, seeding & querying
-- Log in and sign up authentication flows
-- CRUD operations to create, view and delete blog posts
-- Pagination, filtering & relations queries
+- **Authentication** — register and log in with email + password (credentials provider).
+- **Dashboard** — stats for total users, total accounts, and your accounts, plus a table of your accounts.
+- **Account management** — add, edit, and delete accounts; view/copy a stored cookie token on demand.
+- **Profile** — edit your name, email, and password, and set an optional **Discord webhook URL**.
+- **Security** — rate-limited login attempts, session invalidation on password change, session freshness checks, and security headers. Cookie tokens are stored but **never shipped to the client** — fetched on demand.
+- **Dark mode** — manual toggle persisted to `localStorage` (`hoyo-theme`), falling back to OS preference.
+- **Neobrutalism design** — bold borders, bright saturated colors, thick shadows, monospace accents.
 
-## Getting started
+## Getting Started
 
 ### 1. Install dependencies
 
-After cloning the repo and navigating into it, install dependencies:
-
-```
-npm install
+```bash
+pnpm install
 ```
 
-### 1. Create a Prisma Postgres instance
+`prisma generate` runs automatically on `postinstall`.
 
-Create a Prisma Postgres instance by running the following command:
+### 2. Configure environment variables
 
-```
-npx prisma init --db
-```
-
-This command is interactive and will prompt you to:
-
-1. Log in to the [Prisma Console](https://console.prisma.io)
-1. Select a **region** for your Prisma Postgres instance
-1. Give a **name** to your Prisma project
-
-Once the command has terminated, copy the **Database URL** from the terminal output. You'll need it in the next step when you configure your `.env` file.
-
-<!-- Create a Prisma Postgres database instance using [Prisma Data Platform](https://console.prisma.io):
-
-1. Navigate to [Prisma Data Platform](https://console.prisma.io).
-2. Click **New project** to create a new project.
-3. Enter a name for your project in the **Name** field.
-4. Inside the **Prisma Postgres** section, click **Get started**.
-5. Choose a region close to your location from the **Region** dropdown.
-6. Click **Create project** to set up your database. This redirects you to the database setup page.
-7. In the **Set up database access** section, copy the `DATABASE_URL`. You will use this in the next steps. -->
-
-### 2. Set up your `.env` file
-
-You now need to configure your database connection via an environment variable.
-
-First, create an `.env` file:
+Create a `.env` file at the project root:
 
 ```bash
-touch .env
-```
-
-Then update the `.env` file by replacing the existing `DATABASE_URL` value with the one you previously copied. It will look similar to this:
-
-```bash
-DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=PRISMA_POSTGRES_API_KEY"
-```
-
-To ensure your authentication works properly, you'll also need to set [env vars for NextAuth.js](https://next-auth.js.org/configuration/options):
-
-```bash
-AUTH_SECRET="RANDOM_32_CHARACTER_STRING"
-```
-
-You can generate a random 32 character string for the `AUTH_SECRET` secret with this command:
-
-```
-npx auth secret
-```
-
-In the end, your entire `.env` file should look similar to this (but using _your own values_ for the env vars):
-
-```bash
-DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMWEzMjBiYTEtYjg2Yy00ZTA5LThmZTktZDBhODA3YjQwZjBkIiwidGVuYW50X2lkIjoiY2RhYmM3ZTU1NzdmMmIxMmM0ZTI1Y2IwNWJhZmZhZmU4NjAxNzkxZThlMzhlYjI1NDgwNmIzZjI5NmU1NTkzNiIsImludGVybmFsX3NlY3JldCI6ImI3YmQzMjFhLTY2ODQtNGRiMC05ZWRiLWIyMGE2ZTQ0ZDMwMSJ9.JgKXQBatjjh7GIG3_fRHDnia6bDv8BdwvaX5F-XdBfw"
-
-AUTH_SECRET="gTwLSXFeNWFRpUTmxlRniOfegXYw445pd0k6JqXd7Ag="
+DATABASE_URL="prisma+postgres://..."   # your Postgres connection string
+AUTH_SECRET="..."                      # generate: npx auth secret
 ```
 
 ### 3. Migrate the database
 
-Run the following commands to set up your database and Prisma schema:
-
 ```bash
-npx prisma migrate dev --name init
+pnpm prisma migrate deploy
 ```
 
-<!--
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+### 4. (Optional) Seed the database
 
 ```bash
-# Using yarn
-yarn prisma migrate dev --name init
-
-# Using pnpm
-pnpm prisma migrate dev --name init
-
-# Using bun
-bun prisma migrate dev --name init
-```
-
-</details> -->
-
-### 4. Seed the database
-
-Add initial data to your database:
-
-```bash
-npx prisma db seed
-```
-
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
-
-```bash
-# Using yarn
-yarn prisma db seed
-
-# Using pnpm
 pnpm prisma db seed
-
-# Using bun
-bun prisma db seed
 ```
 
-</details>
+The seed refuses to run in production. In development it creates demo users and prints random `dev-*` generated passwords.
 
 ### 5. Run the app
 
-Start the development server:
-
 ```bash
-npm run dev
+pnpm dev
 ```
 
-<details>
+Open [http://localhost:3000](http://localhost:3000).
 
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+## Data Model
 
-```bash
-# Using yarn
-yarn dev
+```prisma
+model User {
+  id             String     @id @default(cuid())
+  name           String?
+  email          String     @unique
+  password       String
+  sessionVersion Int        @default(0)   // bumped on password change
+  webhook        String?                  // optional Discord webhook URL
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  accounts       Account[]
+}
 
-# Using pnpm
-pnpm run dev
+model Account {
+  id          String   @id @default(cuid())
+  name        String
+  accountId   String   @unique            // game account ID
+  cookieToken String                      // stored, never sent to the client
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
-# Using bun
-bun run dev
+model LoginAttempt {
+  identifier  String                     // email
+  windowStart DateTime
+  count       Int
+  updatedAt   DateTime @updatedAt
+
+  @@id([identifier, windowStart])
+}
 ```
 
-</details>
+## Pages
 
-Once the server is running, visit `http://localhost:3000` to start using the app.
+| Route        | Description                                       |
+| ------------ | ------------------------------------------------- |
+| `/`          | Landing page (neobrutalism hero)                  |
+| `/login`     | Sign in                                           |
+| `/register`  | Create an account                                 |
+| `/dashboard` | Stats + your accounts table                       |
+| `/profile`   | Edit profile and optional Discord webhook         |
 
-## Next steps
+## Scripts
 
-- [Prisma ORM documentation](https://www.prisma.io/docs/orm)
-- [Prisma Client API reference](https://www.prisma.io/docs/orm/prisma-client)
-- [Join our Discord community](https://discord.com/invite/prisma)
-- [Follow us on Twitter](https://twitter.com/prisma)
+| Command                 | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| `pnpm dev`              | Start the dev server                          |
+| `pnpm build`            | Production build (runs `prisma migrate deploy`) |
+| `pnpm start`            | Start the production server                   |
+| `pnpm lint`             | ESLint check (currently broken, see below)    |
+| `pnpm prisma migrate dev --name <name>` | Create a migration            |
+
+> **Note:** `pnpm lint` currently crashes due to an ESLint 10 + TypeScript 7.0.2 toolchain incompatibility. Use `npx tsc --noEmit` to verify types instead.
