@@ -1,6 +1,7 @@
+import { existsSync } from "node:fs";
 import { defineConfig } from "prisma/config";
 
-if (process.loadEnvFile) {
+if (existsSync(".env")) {
   process.loadEnvFile();
 }
 
