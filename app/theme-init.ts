@@ -1,0 +1,1 @@
+export const themeInitScript = `(function(){try{var s=localStorage.getItem('hoyo-theme');var t=s==='dark'||((!s||s==='light')&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})();`;
