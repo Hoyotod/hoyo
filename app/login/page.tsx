@@ -2,13 +2,13 @@
 
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { loginSchema, fieldErrors } from "@/lib/validation";
 import { FieldError } from "../FieldError";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const passwordChanged = searchParams.get("changed") === "1";
@@ -125,5 +125,21 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#E0F7FA] flex items-center justify-center p-8 dark:bg-gray-950">
+          <p className="font-mono font-extrabold text-black dark:text-white">
+            LOADING…
+          </p>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
