@@ -1,11 +1,11 @@
-// app/layout.tsx
 import "./globals.css";
 import Header from "./Header";
 import Providers from "./providers";
+import { themeInitScript } from "./theme-init";
 
 export const metadata = {
-  title: "Superblog",
-  description: "A blog app using Next.js and Prisma",
+  title: "HoyoAccount",
+  description: "Hoyoverse account manager",
 };
 
 export default function RootLayout({
@@ -14,8 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body suppressHydrationWarning>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Header />
