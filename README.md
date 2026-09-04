@@ -17,7 +17,7 @@ A **Hoyoverse account manager** — manage your HoYo game accounts (account IDs 
 
 - **Authentication** — register and log in with email + password (credentials provider).
 - **Dashboard** — stats for total users, total accounts, and your accounts, plus a table of your accounts.
-- **Account management** — add, edit, and delete accounts; view/copy a stored cookie token on demand.
+- **Account management** — add, edit, and delete accounts; view/copy a stored cookie token on demand. Edit name/accountId without re-entering the cookie token (leave blank to keep unchanged).
 - **Profile** — edit your name, email, and password, and set an optional **Discord webhook URL**.
 - **Security** — rate-limited login attempts, session invalidation on password change, session freshness checks, and security headers. Cookie tokens are stored but **never shipped to the client** — fetched on demand.
 - **Dark mode** — manual toggle persisted to `localStorage` (`hoyo-theme`), falling back to OS preference.
@@ -85,10 +85,11 @@ model Account {
   accountId   String   @unique            // game account ID
   cookieToken String                      // stored, never sent to the client
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+// Note: Deleting a User cascade-deletes its Accounts
 
 model LoginAttempt {
   identifier  String                     // email

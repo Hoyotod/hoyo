@@ -29,6 +29,12 @@ export const accountSchema = z.object({
   cookieToken: z.string().trim().min(1, "Cookie token is required"),
 });
 
+export const updateAccountSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name is too long"),
+  accountId: z.string().trim().min(1, "Account ID is required"),
+  cookieToken: z.string().trim().optional(),
+});
+
 export type FieldErrors = Record<string, string>;
 
 export function fieldErrors<T>(schema: ZodType<T>, data: unknown) {

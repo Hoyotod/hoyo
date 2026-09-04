@@ -51,10 +51,11 @@ model Account {
   accountId   String   @unique
   cookieToken String   // stored; never sent to the client
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+// Note: Deleting a User cascade-deletes its Accounts (DB-level ON DELETE CASCADE)
 
 model LoginAttempt {
   identifier  String
@@ -73,6 +74,7 @@ model LoginAttempt {
 3. **Dashboard** (`/dashboard`) — Stats + account table
    - Stats: Total users, total accounts, current user's accounts
    - Table shows NAME / ACCOUNT ID / ACTIONS. The cookie token is **omitted** from the list query (`omit: { cookieToken: true }`) and fetched on demand via `getCookieToken` (show modal) — never shipped to the client.
+   - Edit modal: name/accountId can be edited without re-entering the cookie token (leave blank to keep existing token; uses `updateAccountSchema`).
 4. **Profile** (`/profile`) — Edit name/email/password + optional Discord `webhook` URL
 
 ## Security Notes
@@ -103,7 +105,7 @@ AUTH_SECRET="..."  # Generate: npx auth secret
 - `lib/prisma.ts` — Prisma client singleton
 - `lib/env.ts` — Fail-fast required-env check (imported by `auth.ts` and `lib/prisma.ts`)
 - `lib/rateLimit.ts` — Login rate limiting via the `LoginAttempt` table
-- `lib/validation.ts` — zod schemas + `fieldErrors` helper
+- `lib/validation.ts` — zod schemas (`accountSchema` for create with required cookie; `updateAccountSchema` for edit with optional cookie) + `fieldErrors` helper
 - `app/layout.tsx` — Root layout with providers
 - `app/Header.tsx` — Navigation header
 - `app/theme-provider.tsx` — `ThemeProvider` + `useTheme()` (dark mode)

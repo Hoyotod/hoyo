@@ -3,7 +3,7 @@
 import { Eye, Pencil, Trash2, X, Copy, Check, Loader2 } from "lucide-react";
 import { startTransition, useState } from "react";
 import { updateAccount, deleteAccount, getCookieToken } from "./actions";
-import { accountSchema, fieldErrors } from "@/lib/validation";
+import { accountSchema, updateAccountSchema, fieldErrors } from "@/lib/validation";
 import { FieldError } from "../FieldError";
 
 type Account = {
@@ -97,7 +97,7 @@ export default function AccountActions({ account }: { account: Account }) {
     event.preventDefault();
     if (editPending) return;
     const values = { name, accountId, cookieToken };
-    const parsed = fieldErrors(accountSchema, values);
+    const parsed = fieldErrors(updateAccountSchema, values);
 
     if (!parsed.success) {
       setErrors(parsed.errors);
@@ -301,6 +301,7 @@ export default function AccountActions({ account }: { account: Account }) {
                       value={cookieToken}
                       onChange={(e) => setCookieToken(e.target.value)}
                       className={inputClass}
+                      placeholder="Leave blank to keep current token"
                     />
                     <FieldError message={errors.cookieToken} />
                   </div>

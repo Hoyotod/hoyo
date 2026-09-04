@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/auth";
-import { accountSchema } from "@/lib/validation";
+import { accountSchema, updateAccountSchema } from "@/lib/validation";
 
 export async function addAccount(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -60,7 +60,7 @@ export async function updateAccount(formData: FormData) {
 
   const id = formData.get("id")?.toString().trim();
 
-  const parsed = accountSchema.safeParse({
+  const parsed = updateAccountSchema.safeParse({
     name: formData.get("name"),
     accountId: formData.get("accountId"),
     cookieToken: formData.get("cookieToken"),
@@ -72,9 +72,15 @@ export async function updateAccount(formData: FormData) {
 
   const { name, accountId, cookieToken } = parsed.data;
 
+  const data: { name: string; accountId: string; cookieToken?: string } = {
+    name,
+    accountId,
+    ...(cookieToken ? { cookieToken } : {}),
+  };
+
   const updated = await prisma.account.updateMany({
     where: { id, userId: session.user.id },
-    data: { name, accountId, cookieToken },
+    data,
   });
 
   if (updated.count === 0) {
