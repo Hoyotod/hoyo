@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "deploy": "vite build && wrangler pages deploy dist --project-name hoyo"
+    "preview": "pnpm run build && wrangler dev",
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "better-auth": "^1.7.15",
@@ -16,6 +16,7 @@
     "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.67.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
@@ -24,6 +25,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
     "vite": "^6.0.0",
-    "wrangler": "^4.157.0"
+    "wrangler": "^4.158.0"
   }
 }
