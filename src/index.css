@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply bg-[#FFF6E5] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100; }
+  body { @apply font-sans antialiased; }
+}
+
+@layer components {
+  .neo-border { @apply border-3 border-black dark:border-neutral-100; }
+  .neo-btn { @apply font-mono font-bold uppercase border-3 border-black dark:border-neutral-100 px-4 py-2 shadow-neo-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none; }
+  .neo-card { @apply border-3 border-black dark:border-neutral-100 shadow-neo bg-white dark:bg-neutral-900; }
+  .neo-input { @apply w-full border-3 border-black dark:border-neutral-100 bg-white dark:bg-neutral-800 px-3 py-2 font-mono text-sm placeholder-neutral-400 outline-none focus:bg-yellow-50 dark:focus:bg-neutral-700 focus:shadow-neo-sm transition-shadow; }
+  .neo-label { @apply block font-mono text-xs font-bold uppercase tracking-wider mb-1; }
+  .neo-table { @apply w-full border-3 border-black dark:border-neutral-100 border-collapse font-mono text-sm; }
+  .neo-table th { @apply border-3 border-black dark:border-neutral-100 bg-black dark:bg-neutral-100 text-white dark:text-black px-3 py-3 text-left font-bold uppercase text-xs tracking-wider; }
+  .neo-table td { @apply border-3 border-black dark:border-neutral-100 px-3 py-3; }
+  .neo-badge { @apply inline-block font-mono text-xs font-bold uppercase border-2 border-black dark:border-neutral-100 px-2 py-0.5; }
+}
