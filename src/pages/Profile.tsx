@@ -18,6 +18,7 @@ export default function Profile() {
   const [password, setPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [webhook, setWebhook] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
@@ -30,6 +31,7 @@ export default function Profile() {
         setEmail(d.user.email);
         setInitialEmail(d.user.email);
         setWebhook(d.user.webhook ?? "");
+        setTelegramChatId(d.user.telegramChatId ?? "");
       })
       .catch((e) => setError(extractErrorMessage(e)))
       .finally(() => setLoading(false));
@@ -48,6 +50,7 @@ export default function Profile() {
         password: password || undefined,
         currentPassword: currentPassword || undefined,
         webhook: webhook.trim() ? webhook.trim() : null,
+        telegramChatId: telegramChatId.trim() ? telegramChatId.trim() : null,
       });
       setPassword("");
       setCurrentPassword("");
@@ -108,6 +111,10 @@ export default function Profile() {
         <div>
           <Label htmlFor="webhook">Discord Webhook URL (optional)</Label>
           <Input id="webhook" type="url" maxLength={2048} value={webhook} onChange={(e) => setWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." />
+        </div>
+        <div>
+          <Label htmlFor="telegramChatId">Telegram Chat ID (optional)</Label>
+          <Input id="telegramChatId" maxLength={64} value={telegramChatId} onChange={(e) => setTelegramChatId(e.target.value)} placeholder="e.g. 123456789 or @channel" />
         </div>
         <Button disabled={saving} type="submit" className="w-full">
           {saving ? "Saving…" : "Save Changes"}
