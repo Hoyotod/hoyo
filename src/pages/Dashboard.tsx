@@ -1,6 +1,17 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { api, extractErrorMessage, type GameAccount } from "../lib/api";
+import AccountDataTable from "../components/AccountDataTable";
 import Modal from "../components/Modal";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../components/ui/alert-dialog";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card, CardDescription, CardTitle } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Spinner } from "../components/ui/spinner";
+import { Textarea } from "../components/ui/textarea";
+import { toast } from "../components/ui/toast";
 
 type Mode = { kind: "create" } | { kind: "edit"; account: GameAccount } | { kind: "token"; account: GameAccount } | null;
 
@@ -9,6 +20,16 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<Mode>(null);
+  const [query, setQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<GameAccount | null>(null);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return accounts;
+    return accounts.filter(
+      (a) => a.name.toLowerCase().includes(q) || a.accountId.toLowerCase().includes(q),
+    );
+  }, [accounts, query]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -26,10 +47,10 @@ export default function Dashboard() {
   useEffect(() => { load(); }, [load]);
 
   async function onDelete(id: string) {
-    if (!confirm("Delete this account? This cannot be undone.")) return;
     try {
       await api.deleteAccount(id);
       await load();
+      toast.add({ title: "Account deleted", type: "success" });
     } catch (e) {
       setError(extractErrorMessage(e));
     }
@@ -39,62 +60,58 @@ export default function Dashboard() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="neo-badge bg-black dark:bg-white text-[#FFD02F] dark:text-black">Dashboard</p>
-          <h1 className="mt-2 font-display text-3xl sm:text-5xl uppercase">Your Accounts</h1>
+          <Badge>Dashboard</Badge>
+          <h1 className="mt-2 text-3xl sm:text-5xl uppercase">Your Accounts</h1>
         </div>
-        <button onClick={() => setMode({ kind: "create" })} className="neo-btn bg-[#FFD02F] dark:bg-neutral-800">+ Add Account</button>
-      </div>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <Stat label="Your Accounts" value={String(accounts.length)} accent="bg-[#FFD02F]" />
-        <Stat label="Total Stored" value={String(accounts.length)} accent="bg-[#00D68F]" />
-        <Stat label="Security" value="ENCRYPTED" accent="bg-[#5BA4FF]" />
+        <Button onClick={() => setMode({ kind: "create" })}>+ Add Account</Button>
       </div>
 
       {error && (
-        <div className="mt-6 border-3 border-black dark:border-neutral-100 bg-[#FF5C5C] text-white px-4 py-3 font-mono font-bold">
-          {error}
-        </div>
+        <Alert variant="destructive" className="mt-6">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <div className="neo-card mt-6 overflow-auto">
+      <Card className="mt-6 overflow-auto p-0">
         {loading ? (
-          <p className="p-8 text-center font-mono font-bold uppercase">Loading…</p>
+          <p className="p-8 text-center font-bold uppercase flex items-center justify-center gap-2"><Spinner /> Loading…</p>
         ) : accounts.length === 0 ? (
           <div className="p-10 text-center">
-            <p className="font-display text-2xl uppercase">No accounts yet</p>
-            <p className="mt-2 font-mono text-sm">Add your first game account to get started.</p>
-            <button onClick={() => setMode({ kind: "create" })} className="neo-btn mt-4 bg-black dark:bg-white text-[#FFD02F] dark:text-black">+ Add Account</button>
+            <p className="text-2xl uppercase">No accounts yet</p>
+            <p className="mt-2 text-sm">Add your first game account to get started.</p>
+            <Button onClick={() => setMode({ kind: "create" })} className="mt-4">+ Add Account</Button>
           </div>
         ) : (
-          <table className="neo-table min-w-[640px]">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Account ID</th>
-                <th>Updated</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((a) => (
-                <tr key={a.id} className="bg-white dark:bg-neutral-900">
-                  <td className="font-bold">{a.name}</td>
-                  <td>{a.accountId}</td>
-                  <td className="text-xs">{new Date(a.updatedAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="flex flex-wrap gap-2">
-                      <button onClick={() => setMode({ kind: "token", account: a })} className="neo-btn bg-[#5BA4FF] text-white text-xs">Token</button>
-                      <button onClick={() => setMode({ kind: "edit", account: a })} className="neo-btn bg-white dark:bg-neutral-800 text-xs">Edit</button>
-                      <button onClick={() => onDelete(a.id)} className="neo-btn bg-[#FF5C5C] text-white text-xs">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <AccountDataTable
+            data={filtered}
+            query={query}
+            onQueryChange={setQuery}
+            onToken={(a) => setMode({ kind: "token", account: a })}
+            onEdit={(a) => setMode({ kind: "edit", account: a })}
+            onDeleteRequest={(a) => setDeleteTarget(a)}
+          />
         )}
-      </div>
+      </Card>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete {deleteTarget?.name} ({deleteTarget?.accountId})? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-black text-white hover:bg-black"
+              onClick={() => { if (deleteTarget) onDelete(deleteTarget.id); setDeleteTarget(null); }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {mode?.kind === "create" && (
         <AccountForm
@@ -115,16 +132,6 @@ export default function Dashboard() {
         <TokenModal account={mode.account} onClose={() => setMode(null)} />
       )}
     </main>
-  );
-}
-
-function Stat({ label, value, accent }: { label: string; value: string; accent: string }) {
-  return (
-    <div className="neo-card p-4">
-      <span className={`inline-block h-3 w-8 border-2 border-black dark:border-neutral-100 ${accent} mb-2`} />
-      <p className="font-mono text-xs uppercase">{label}</p>
-      <p className="font-display text-2xl">{value}</p>
-    </div>
   );
 }
 
@@ -154,8 +161,10 @@ function AccountForm({
         const body: { name: string; accountId: string; cookieToken?: string } = { name, accountId };
         if (cookieToken.trim()) body.cookieToken = cookieToken;
         await api.updateAccount(account.id, body);
+        toast.add({ title: "Account updated", type: "success" });
       } else {
         await api.createAccount({ name, accountId, cookieToken });
+        toast.add({ title: "Account created", type: "success" });
       }
       onSaved();
     } catch (err) {
@@ -168,23 +177,23 @@ function AccountForm({
   return (
     <Modal title={title} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
-        {error && <div className="border-3 border-black bg-[#FF5C5C] text-white px-3 py-2 font-mono text-sm font-bold">{error}</div>}
+        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
         <div>
-          <label className="neo-label" htmlFor="name">Name</label>
-          <input id="name" required minLength={1} maxLength={100} value={name} onChange={(e) => setName(e.target.value)} className="neo-input" placeholder="Genshin Account" />
+          <Label htmlFor="name">Name</Label>
+          <Input id="name" required minLength={1} maxLength={100} value={name} onChange={(e) => setName(e.target.value)} placeholder="Genshin Account" />
         </div>
         <div>
-          <label className="neo-label" htmlFor="accountId">Account ID</label>
-          <input id="accountId" required minLength={1} maxLength={255} value={accountId} onChange={(e) => setAccountId(e.target.value)} className="neo-input" placeholder="123456789" />
+          <Label htmlFor="accountId">Account ID</Label>
+          <Input id="accountId" required minLength={1} maxLength={255} value={accountId} onChange={(e) => setAccountId(e.target.value)} placeholder="123456789" />
         </div>
         <div>
-          <label className="neo-label" htmlFor="cookieToken">{account ? "New Cookie Token (optional)" : "Cookie Token"}</label>
-          <textarea id="cookieToken" required={!account} minLength={1} maxLength={2048} value={cookieToken} onChange={(e) => setCookieToken(e.target.value)} className="neo-input min-h-[100px]" placeholder={account ? "Leave blank to keep existing" : "ltoken=...; ltuid=..."} />
-          {account && <p className="mt-1 font-mono text-xs">Leave blank to keep existing token.</p>}
+          <Label htmlFor="cookieToken">{account ? "New Cookie Token (optional)" : "Cookie Token"}</Label>
+          <Textarea id="cookieToken" required={!account} minLength={1} maxLength={2048} value={cookieToken} onChange={(e) => setCookieToken(e.target.value)} className="min-h-[100px]" placeholder={account ? "Leave blank to keep existing" : "ltoken=...; ltuid=..."} />
+          {account && <p className="mt-1 text-xs">Leave blank to keep existing token.</p>}
         </div>
         <div className="flex gap-3 pt-2">
-          <button disabled={busy} type="submit" className="neo-btn flex-1 bg-black dark:bg-white text-[#FFD02F] dark:text-black">{busy ? "…" : "Save"}</button>
-          <button type="button" onClick={onClose} className="neo-btn bg-white dark:bg-neutral-800">Cancel</button>
+          <Button disabled={busy} type="submit" variant="noShadow" className="flex-1">{busy ? "…" : "Save"}</Button>
+          <Button type="button" variant="noShadow" className="bg-secondary-background text-foreground" onClick={onClose}>Cancel</Button>
         </div>
       </form>
     </Modal>
@@ -204,23 +213,57 @@ function TokenModal({ account, onClose }: { account: GameAccount; onClose: () =>
 
   async function copy() {
     if (!token) return;
-    await navigator.clipboard.writeText(token);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    let ok = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(token);
+        ok = true;
+      }
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = token;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, token.length);
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    if (ok) {
+      setCopied(true);
+      toast.add({ title: "Copied to clipboard", type: "success" });
+      setTimeout(() => setCopied(false), 1500);
+    } else {
+      toast.add({
+        title: "Copy failed",
+        description: "Select the token above and copy manually.",
+        type: "error",
+      });
+    }
   }
 
   return (
     <Modal title="Cookie Token" onClose={onClose}>
-      <p className="font-mono text-xs uppercase mb-2">{account.name} · {account.accountId}</p>
-      {error && <div className="border-3 border-black bg-[#FF5C5C] text-white px-3 py-2 font-mono text-sm font-bold">{error}</div>}
+      <p className="text-xs uppercase mb-2">{account.name} · {account.accountId}</p>
+      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       {token ? (
         <>
-          <div className="border-3 border-black dark:border-neutral-100 bg-neutral-100 dark:bg-neutral-800 p-3 font-mono text-xs break-all max-h-40 overflow-auto">{token}</div>
-          <button onClick={copy} className="neo-btn mt-4 w-full bg-[#00D68F] text-black">{copied ? "Copied ✓" : "Copy Token"}</button>
-          <p className="mt-3 font-mono text-xs">⚠ Sensitive — do not share. Close this modal to hide.</p>
+          <div className="border-2 border-border bg-secondary-background p-3 text-xs break-all max-h-40 overflow-auto">{token}</div>
+          <Button onClick={copy} variant="noShadow" className="mt-4 w-full">{copied ? "Copied ✓" : "Copy Token"}</Button>
+          <p className="mt-3 text-xs">⚠ Sensitive — do not share. Close this modal to hide.</p>
         </>
       ) : !error ? (
-        <p className="font-mono font-bold uppercase">Loading…</p>
+        <p className="font-bold uppercase flex items-center gap-2"><Spinner /> Loading…</p>
       ) : null}
     </Modal>
   );

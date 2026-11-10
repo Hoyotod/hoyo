@@ -1,6 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { signOut, useSessionUser } from "../lib/auth-client";
-import ThemeToggle from "./ThemeToggle";
+import { Button, buttonVariants } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export default function Header() {
   const { user } = useSessionUser();
@@ -12,28 +20,32 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b-3 border-black dark:border-neutral-100 bg-[#FFD02F] dark:bg-neutral-900">
+    <header className="sticky top-0 z-40 border-b-2 border-border bg-secondary-background">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center border-3 border-black dark:border-neutral-100 bg-black dark:bg-white font-display text-xl text-[#FFD02F] dark:text-black shadow-neo-sm">H</span>
-          <span className="font-display text-xl uppercase tracking-tight">Hoyo</span>
-          <span className="neo-badge bg-white dark:bg-neutral-800 hidden sm:inline">API+WEB</span>
+          <span className="flex h-10 w-10 items-center justify-center border-2 border-border bg-main font-heading text-xl text-main-foreground shadow-shadow">H</span>
+          <span className="font-heading text-xl uppercase tracking-tight">Hoyo</span>
         </Link>
-        <nav className="flex items-center gap-2 sm:gap-3">
+        <nav className="flex h-10 items-center gap-2 sm:gap-3">
           {user ? (
             <>
-              <Link to="/dashboard" className="neo-btn bg-white dark:bg-neutral-800 text-xs sm:text-sm">Dashboard</Link>
-              <Link to="/profile" className="neo-btn bg-[#FF5C5C] dark:bg-[#7f1d1d] text-white text-xs sm:text-sm hidden sm:inline">Profile</Link>
-              <span className="hidden md:inline font-mono text-xs border-3 border-black dark:border-neutral-100 bg-white dark:bg-neutral-800 px-2 py-1 max-w-[180px] truncate">{user.email}</span>
-              <button onClick={handleSignOut} className="neo-btn bg-black dark:bg-white text-[#FFD02F] dark:text-black text-xs sm:text-sm">Exit</button>
+              <Link to="/dashboard" className={buttonVariants({ variant: "neutral" })}>Dashboard</Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button>Menu</Button>} />
+                <DropdownMenuContent align="end" className="shadow-shadow">
+                  <DropdownMenuLabel className="max-w-[180px] truncate">{user.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
-              <Link to="/login" className="neo-btn bg-white dark:bg-neutral-800 text-xs sm:text-sm">Login</Link>
-              <Link to="/register" className="neo-btn bg-black dark:bg-white text-[#FFD02F] dark:text-black text-xs sm:text-sm">Sign Up</Link>
+              <Link to="/login" className={buttonVariants({ variant: "neutral" })}>Login</Link>
+              <Link to="/register" className={buttonVariants({ variant: "default" })}>Sign Up</Link>
             </>
           )}
-          <ThemeToggle />
         </nav>
       </div>
     </header>

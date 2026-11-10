@@ -31,9 +31,10 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   health: () => req<{ ok: boolean }>("/api/health"),
+  stats: () => req<{ totalUsers: number; totalGameAccounts: number }>("/api/stats"),
   me: () => req<{ user: UserProfile }>("/api/users/me"),
-  updateMe: (body: { name: string; email: string; password?: string; webhook?: string | null }) =>
-    req<{ user: { name: string; email: string; webhook: string | null }; passwordChanged: boolean }>("/api/users/me", {
+  updateMe: (body: { name?: string; email?: string; password?: string; currentPassword?: string; webhook?: string | null }) =>
+    req<{ user: { name: string | null; email: string; webhook: string | null }; passwordChanged: boolean; emailChanged?: boolean; reloginRequired?: boolean }>("/api/users/me", {
       method: "PUT",
       body: JSON.stringify(body),
     }),
