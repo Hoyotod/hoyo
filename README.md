@@ -20,4 +20,8 @@ pnpm deploy # → Cloudflare Pages hoyo.pages.dev
 - `/login` — Login
 - `/register` — Register
 - `/dashboard` — Stats + accounts table
-- `/profile` — Edit name/email/password/webhook
+- `/profile` - Edit name/email/password/webhook
+
+## License
+
+MIT — see [LICENSE](LICENSE).
