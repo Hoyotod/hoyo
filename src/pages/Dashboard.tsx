@@ -188,7 +188,10 @@ function AccountForm({
         </div>
         <div>
           <Label htmlFor="cookieToken">{account ? "New Cookie Token (optional)" : "Cookie Token"}</Label>
-          <Textarea id="cookieToken" required={!account} minLength={1} maxLength={2048} value={cookieToken} onChange={(e) => setCookieToken(e.target.value)} className="min-h-[100px]" placeholder={account ? "Leave blank to keep existing" : "ltoken=...; ltuid=..."} />
+          <Textarea id="cookieToken" required={!account} minLength={1} maxLength={2048} value={cookieToken} onChange={(e) => setCookieToken(e.target.value)} className="min-h-[100px]" placeholder={account ? "Leave blank to keep existing" : "v2_CAQSDGRlOG9..."} />
+          <p className="mt-1 text-xs">
+            Paste only the <code>cookie_token_v2</code> value (a single string starting with <code>v2_</code>), not the whole cookie like <code>ltoken=...; ltuid=...</code>.
+          </p>
           {account && <p className="mt-1 text-xs">Leave blank to keep existing token.</p>}
         </div>
         <div className="flex gap-3 pt-2">

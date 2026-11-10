@@ -25,7 +25,7 @@ Always use `pnpm` (never `npm`/`npx`).
 
 1. **Landing** (`/`) — Simple hero section, neobrutalism style
 2. **Auth** (`/login`, `/register`) — Neobrutalism styled forms, calls `POST /api/auth/sign-{in,up}/email`
-3. **Dashboard** (`/dashboard`) — Stats + account table (NAME / ACCOUNT ID / ACTIONS). Cookie token fetched on demand via `GET /api/accounts/:id/token` in modal — never in table. Edit modal: leave cookie blank to keep existing.
+3. **Dashboard** (`/dashboard`) - Stats + account table (NAME / ACCOUNT ID / ACTIONS). Cookie token fetched on demand via `GET /api/accounts/:id/token` in modal - never in table. Edit modal: leave cookie blank to keep existing. The cookie field takes only the `cookie_token_v2` value (single string like `v2_CAQSDGRlOG9...`), not a full cookie string.
 4. **Profile** (`/profile`) - Edit name/email/password + optional Discord `webhook` URL and `telegramChatId` via `GET/PUT /api/users/me`
 
 ## Data Flow
