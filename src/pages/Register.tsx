@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { signUp, useSessionUser } from "../lib/auth-client";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { Card, CardDescription } from "../components/ui/card";
+import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
@@ -40,7 +40,6 @@ export default function Register() {
       <Card className="w-full p-6 sm:p-8">
       <form onSubmit={onSubmit} className="space-y-4">
         <h1 className="text-3xl uppercase">Sign Up</h1>
-        <CardDescription className="text-xs uppercase">Create account</CardDescription>
 
         {error && (
           <Alert variant="destructive">
