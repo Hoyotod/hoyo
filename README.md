@@ -11,7 +11,7 @@ cp .env.example .env  # set VITE_API_URL (default http://localhost:8787 via prox
 pnpm install
 pnpm dev    # :5173, proxies /api -> 8787
 pnpm build
-pnpm deploy # → Cloudflare Pages hoyo.pages.dev
+pnpm deploy # → https://hoyo.haiueom.workers.dev (Cloudflare Workers)
 ```
 
 ## Pages

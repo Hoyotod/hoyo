@@ -9,7 +9,7 @@ Hoyo frontend — Vite + React + TypeScript. Companion API in separate repo: `ho
 ```bash
 pnpm dev    # vite dev on :5173 (proxies /api -> 8787)
 pnpm build  # tsc -b && vite build
-pnpm deploy # build + wrangler pages deploy
+pnpm deploy # build + wrangler deploy -> hoyo.haiueom.workers.dev
 ```
 
 Always use `pnpm` (never `npm`/`npx`).
