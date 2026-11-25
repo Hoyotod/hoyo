@@ -39,6 +39,11 @@ export const api = {
       method: "PUT",
       body: JSON.stringify(body),
     }),
+  deleteMe: (currentPassword: string) =>
+    req<{ message: string }>("/api/users/me", {
+      method: "DELETE",
+      body: JSON.stringify({ currentPassword }),
+    }),
   accounts: () => req<{ accounts: GameAccount[] }>("/api/accounts"),
   createAccount: (body: { name: string; accountId: string; cookieToken: string }) =>
     req<{ account: GameAccount }>("/api/accounts", { method: "POST", body: JSON.stringify(body) }),

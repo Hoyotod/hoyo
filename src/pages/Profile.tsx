@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, extractErrorMessage } from "../lib/api";
 import { signOut } from "../lib/auth-client";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../components/ui/alert-dialog";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -23,6 +24,9 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     api.me()
@@ -121,6 +125,70 @@ export default function Profile() {
         </Button>
       </form>
       </Card>
+
+      {/* Danger zone */}
+      <Card className="mt-6 p-6 sm:p-8 border-2 border-red-500">
+        <h2 className="text-xl uppercase text-red-600 font-bold">Danger Zone</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Once you delete your account, there is no going back. All your game accounts and data will be permanently deleted.
+        </p>
+        <Button
+          variant="neutral"
+          className="mt-4 border-2 border-red-500 text-red-600 hover:bg-red-50"
+          onClick={() => setShowDeleteDialog(true)}
+        >
+          Delete My Account
+        </Button>
+      </Card>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete your account, all your game accounts, and any associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <Label htmlFor="deletePassword">Enter your password to confirm</Label>
+            <Input
+              id="deletePassword"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Your current password"
+              className="mt-2"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeletePassword(""); setShowDeleteDialog(false); }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={async () => {
+                if (!deletePassword.trim()) return;
+                setDeleting(true);
+                try {
+                  await api.deleteMe(deletePassword);
+                  await signOut().catch(() => {});
+                  navigate("/");
+                } catch (err) {
+                  setError(extractErrorMessage(err));
+                  setShowDeleteDialog(false);
+                } finally {
+                  setDeleting(false);
+                  setDeletePassword("");
+                }
+              }}
+              disabled={deleting || !deletePassword.trim()}
+            >
+              {deleting ? "Deleting…" : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
