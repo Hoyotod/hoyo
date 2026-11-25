@@ -105,7 +105,7 @@ export default function Dashboard() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-black text-white hover:bg-black"
-              onClick={() => { if (deleteTarget) onDelete(deleteTarget.id); setDeleteTarget(null); }}
+              onClick={async () => { if (deleteTarget) await onDelete(deleteTarget.id); setDeleteTarget(null); }}
             >
               Delete
             </AlertDialogAction>
